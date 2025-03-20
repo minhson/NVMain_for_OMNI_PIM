@@ -204,6 +204,7 @@ void MemoryController::Enqueue( ncounter_t queueNum, NVMainRequest *request )
 
         if( GetEventQueue( )->FindEvent( EventCycle, this, NULL, nextWakeup ) == NULL )
         {
+            // added by MSON
             if ( request->isCIM )
             {
                 std::cout << "This command queue is empty, we can schedule a CIM transaction right away!" << std::endl;
@@ -928,6 +929,7 @@ NVMainRequest *MemoryController::MakeCachedRequest( NVMainRequest *triggerReques
     return cachedRequest;
 }
 
+// added by MSON
 NVMainRequest *MemoryController::MakeCIMReadRequest( NVMainRequest *triggerRequest )
 {
     NVMainRequest *cimreadRequest = new NVMainRequest( );
@@ -954,6 +956,7 @@ NVMainRequest *MemoryController::MakeActivateRequest( NVMainRequest *triggerRequ
     NVMainRequest *activateRequest = new NVMainRequest( );
 
     activateRequest->type = ACTIVATE;
+    // added by MSON
     activateRequest->isCIM = triggerRequest->isCIM;
     activateRequest->isNOT_IN_ARRAY = triggerRequest->isNOT_IN_ARRAY;
     activateRequest->isAND_IN_ARRAY = triggerRequest->isAND_IN_ARRAY;
@@ -965,7 +968,8 @@ NVMainRequest *MemoryController::MakeActivateRequest( NVMainRequest *triggerRequ
     activateRequest->issueCycle = GetEventQueue()->GetCurrentCycle();
     activateRequest->address = triggerRequest->address;
     activateRequest->owner = this;
-
+    // check the timing
+    std::cout << "ACTIVATE issueCycle: " << activateRequest->issueCycle << std::endl;
     return activateRequest;
 }
 
@@ -994,6 +998,7 @@ NVMainRequest *MemoryController::MakePrechargeRequest( NVMainRequest *triggerReq
     prechargeRequest->type = PRECHARGE;
     prechargeRequest->issueCycle = GetEventQueue()->GetCurrentCycle();
     prechargeRequest->address = triggerRequest->address;
+    // added by MSON
     prechargeRequest->isCIM = triggerRequest->isCIM;
     prechargeRequest->isNOT_IN_ARRAY = triggerRequest->isNOT_IN_ARRAY;
     prechargeRequest->isAND_IN_ARRAY = triggerRequest->isAND_IN_ARRAY;
@@ -1003,7 +1008,8 @@ NVMainRequest *MemoryController::MakePrechargeRequest( NVMainRequest *triggerReq
     prechargeRequest->isNOR_IN_LATCH = triggerRequest->isNOR_IN_LATCH;
     prechargeRequest->isXOR_IN_LATCH = triggerRequest->isXOR_IN_LATCH;
     prechargeRequest->owner = this;
-
+    // check the timing
+    std::cout << "PRECHARGE issueCycle: " << prechargeRequest->issueCycle << std::endl;
     return prechargeRequest;
 }
 
@@ -1155,6 +1161,7 @@ bool MemoryController::FindCIMRequest( std::list<NVMainRequest *>& transactionQu
     return FindCIMRequest( transactionQueue, CIMRequest, pred );
 }
 
+// added by MSON
 bool MemoryController::FindCIMRequest( std::list<NVMainRequest *>& transactionQueue,
                                        NVMainRequest **CIMRequest,
                                        SchedulingPredicate& pred )
@@ -1201,6 +1208,7 @@ bool MemoryController::FindStarvedRequest( std::list<NVMainRequest *>& transacti
 
     for( it = transactionQueue.begin(); it != transactionQueue.end(); it++ )
     {
+        // added by MSON
         if ( (*it)->isCIM )
         {
             //FIXMEstd::cout << "MemoryController::FindStarvedRequest received CIM request!" << std::endl;
@@ -1277,6 +1285,7 @@ bool MemoryController::FindCachedAddress( std::list<NVMainRequest *>& transactio
 
     for( it = transactionQueue.begin(); it != transactionQueue.end(); it++ )
     {
+        // added by MSON
         if ( (*it)->isCIM )
         {
             //FIXMEstd::cout << "MemoryController::FindCachedAddress received CIM request!" << std::endl;
@@ -1328,6 +1337,7 @@ bool MemoryController::FindWriteStalledRead( std::list<NVMainRequest *>& transac
 
     for( it = transactionQueue.begin(); it != transactionQueue.end(); it++ )
     {
+        // added by MSON
         if ( (*it)->isCIM )
         {
             //FIXMEstd::cout << "MemoryController::FindWriteStalledRead received CIM request!" << std::endl;
@@ -1418,6 +1428,7 @@ bool MemoryController::FindRowBufferHit( std::list<NVMainRequest *>& transaction
 
     for( it = transactionQueue.begin(); it != transactionQueue.end(); it++ )
     {
+        // added by MSON
         if ( (*it)->isCIM )
         {
             //FIXMEstd::cout << "MemoryController::FindRowBufferHit received CIM request!" << std::endl;
@@ -1487,6 +1498,7 @@ bool MemoryController::FindOldestReadyRequest( std::list<NVMainRequest *>& trans
 
     for( it = transactionQueue.begin(); it != transactionQueue.end(); it++ )
     {
+        // added by MSON
         if ( (*it)->isCIM )
         {
             //FIXMEstd::cout << "MemoryController::FindOldestReadyRequest received CIM request!" << std::endl;
@@ -1549,6 +1561,7 @@ bool MemoryController::FindClosedBankRequest( std::list<NVMainRequest *>& transa
 
     for( it = transactionQueue.begin(); it != transactionQueue.end(); it++ )
     {
+        // added by MSON
         if ( (*it)->isCIM )
         {
             //FIXMEstd::cout << "MemoryController::FindClosedBankRequest received CIM request!" << std::endl;
@@ -1642,6 +1655,7 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
         {
             req->issueCycle = GetEventQueue()->GetCurrentCycle();
 
+            // added by MSON
             if ( req->isCIM )
             {
                 std::cout << "first if received CIM request!" << std::endl;
@@ -1674,7 +1688,8 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
         starvationCounter[rank][bank][subarray] = 0;
 
         req->issueCycle = GetEventQueue()->GetCurrentCycle();
-    
+        
+        // added by MSON
         if ( req->isCIM )
         {
             std::cout << "second if received CIM request!" << std::endl;
@@ -1718,6 +1733,7 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
 
         req->issueCycle = GetEventQueue()->GetCurrentCycle();
 
+        // added by MSON
         if ( req->isCIM )
         {
             std::cout << "third if received CIM request!" << std::endl;
@@ -1725,6 +1741,7 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
 
         if( activeSubArray[rank][bank][subarray] && p->UsePrecharge )
         {
+            // added by MSON
             if ( req->isCIM )
             {
                 std::cout << "CIM request satified activeSubArray[rank][bank][subarray] && p->UsePrecharge!" << std::endl;
@@ -1752,7 +1769,8 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
         starvationCounter[rank][bank][subarray]++;
 
         req->issueCycle = GetEventQueue()->GetCurrentCycle();
-
+            
+        // added by MSON
         if ( req->isCIM )
         {
             std::cout << "fourth if received CIM request!" << std::endl;
@@ -1795,6 +1813,7 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
 
         rv = true;
     }
+    // added by MSON
     else if( req->isCIM )
     {
         /* Any activate will request the starvation counter */
@@ -1897,6 +1916,7 @@ bool MemoryController::IssueMemoryCommands( NVMainRequest *req )
     }   
     else
     {
+        // added by MSON
         if (req->isCIM)
             std::cout << "check here" << std::endl;
         rv = false;
@@ -1936,6 +1956,7 @@ void MemoryController::CycleCommandQueues( )
         {
             NVMainRequest *queueHead = commandQueues[queueId].at( 0 );
 
+            // added by MSON
             if( queueHead->isCIM && queueHead->type == ACTIVATE )
             {
                 std::cout << "CIM ACTIVATE request is issued!" << std::endl;
@@ -1947,6 +1968,18 @@ void MemoryController::CycleCommandQueues( )
             else if( queueHead->isCIM && queueHead->type == READ )
             {
                 std::cout << "CIM READ request is issued!" << std::endl;
+            }
+            else if( queueHead->type == ACTIVATE )
+            {
+                std::cout << "Cycle at ACTIVATE: " << GetEventQueue()->GetCurrentCycle() << std::endl;
+            }
+            else if( queueHead->type == PRECHARGE )
+            {
+                std::cout << "Cycle at PRECHARGE: " << GetEventQueue()->GetCurrentCycle() << std::endl;
+            }
+            else if( queueHead->type == READ )
+            {
+                std::cout << "Cycle at READ: " << GetEventQueue()->GetCurrentCycle() << std::endl;
             }
 
             *debugStream << GetEventQueue()->GetCurrentCycle() << " MemoryController: Issued request type "
@@ -1997,6 +2030,7 @@ void MemoryController::CycleCommandQueues( )
         {
             NVMainRequest *queueHead = commandQueues[queueId].at( 0 );
             
+            // added by MSON
             if (queueHead->isCIM)
             {
                 std::cout << "CIM request satisfied !commandQueues[queueId].empty( )!" << std::endl;

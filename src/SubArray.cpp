@@ -414,6 +414,7 @@ bool SubArray::Activate( NVMainRequest *request )
         subArrayEnergy += p->Erd;
         activeEnergy += p->Erd;
         
+        // added by MSON
         // add energy for in-latch bitwise operations
         if( request->isCIM && (request->isAND_IN_LATCH || request->isNAND_IN_LATCH) )
         {
@@ -1054,6 +1055,17 @@ ncycle_t SubArray::WriteCellData( NVMainRequest *request )
             subArrayEnergy += p->Eset * writeCount1;
             writeEnergy += p->Ereset * writeCount0;
             writeEnergy += p->Eset * writeCount1;
+        }
+        // added by MSON
+        // the cache line size (memoryWordSize) is 512 bits
+        // since we already have the Write Dynamic Energy from Destiny, we add Ereset & Eset from Destiny directly (w/o writeCount0/1)
+        else 
+        {
+            ncounter_t totalCells = memoryWordSize / 2;  // Number of MLC cells (2 bits each)
+            subArrayEnergy += p->Eset * totalCells;      // Energy to set all cells to LRS
+            subArrayEnergy += p->Ereset * (3.0 * totalCells / 4.0);  // Energy to reset 3/4 of cells to HRS states
+            writeEnergy += p->Eset * totalCells;         // Same for writeEnergy
+            writeEnergy += p->Ereset * (3.0 * totalCells / 4.0);
         }
 
         return p->tWP;
